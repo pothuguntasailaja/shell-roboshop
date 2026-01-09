@@ -11,7 +11,7 @@ N="\e[0m"
 
 LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$( echo $0 | cut -d "." -f1 )
-MONGODB-HOST=mongodb.daws86s.bond
+MONGODB_HOST=mongodb.daws86s.bond
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
 
@@ -32,23 +32,23 @@ VALIDATE (){
     fi
 
 }  
-
+ ####### NODEJS #######
 dnf module disable nodejs -y &>>$LOG_FILE
 VALIDATE $? "Disabling NodeJS"
 
 dnf module enable nodejs:20 -y &>>$LOG_FILE
-VALIDATE $? "Enabling Nodejs:20"
+VALIDATE $? "Enabling NodeJS 20"
 
 dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing NodeJS"
 
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop &>>$LOG_FILE
 VALIDATE $? "Creating system user "
 
 mkdir /app
 VALIDATE $? "Creating app directory"
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading Catalogue Application"
 
 cd /app 
@@ -60,7 +60,7 @@ VALIDATE $?  "unzip catalogue"
 npm install &>>$LOG_FILE
 VALIDATE $? "Install dependencies"
 
-cp catalogue.service/etc/systemd/system/catalogue.service
+cp /app/catalogue.service /etc/systemd/system/catalogue.service
 VALIDATE $? "Copy systemctl service"
 
 systemctl daemon-reload
@@ -73,7 +73,7 @@ VALIDATE $? "Copy mongo repo"
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Install MongoDB client"
 
-mongosh --host MONGODB-HOST </app/db/master-data.js &>>$LOG_FILE
+mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Load catalogue products"
 
 Systemctl restart catalogue
