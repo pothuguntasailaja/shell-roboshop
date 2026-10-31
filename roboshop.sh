@@ -3,6 +3,7 @@
 AMI_ID="ami-0055977a6e828a4f4"
 SG_ID="sg-0c61fbce81bf52f18" # REPLACE WITH YOUR SG ID
 ZONE_ID="Z057768411GBBUOBGRPG8"
+DOMAIN_NAME="daws86s.de"
 
 
 for instance in $@
@@ -14,10 +15,33 @@ INSTANCE_ID=$(aws ec2 run-instances --image-id $AMI_ID --instance-type t3.micro 
     if [ $instance != frontend ]; then
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PrivateIpAddress' --output text)
         echo "$instance is created with private ip $PRIVATE_IP"
+        RECORD_NAME="$instance.$DOMAIN_NAME" # mongodb.daws86s.de
     else
         IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
         echo "$instance is created with public ip $PUBLIC_IP"
+        RECORD_NAME="$DOMAIN_NAME"
     fi
 
     echo "$instance: $IP"
-done
+
+
+aws route53 change-resource-record-sets \
+  --hosted-zone-id $ZONE_ID \
+  --change-batch '
+  {
+    "Comment": "Updating record set"
+    ,"Changes": [{
+      "Action"              : "UPSERT"
+      ,"ResourceRecordSet"  : {
+        "Name"              : "$RECORD_NAME"
+        ,"Type"             : "A"
+        ,"TTL"              : 1
+        ,"ResourceRecords"  : [{
+            "Value"         : "'" $IP "'"
+        }]
+      }
+    }]
+  }
+  '
+
+  done
