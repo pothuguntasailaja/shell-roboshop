@@ -10,6 +10,7 @@ LOGS_FOLDER="/var/log/shell-roboshop"
 SCRIPT_NAME=$(echo $0 | cut -d "." -f1)
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 MONGODB_HOST=mongodb.daws86s.de
+SCRIPT_DIR=$PWD
 
 
 mkdir -p $LOGS_FOLDER
@@ -68,14 +69,14 @@ unzip /tmp/catalogue.zip &>>$LOG_FILE
 VALIDATE $? "Extracting Catalogue Artifact"
 
 
-cd /app  &>$LOG_FILE
+cd /app  &>>$LOG_FILE
 VALIDATE $? "Changing Directory to /app"
 
 npm install &>>$LOG_FILE
 VALIDATE $? "Installing Nodejs Dependencies"
 
 
-cp catalogue.service /etc/systemd/system/catalogue.service &>>$LOG_FILE
+cp $SCRIPT_DIR/catalogue.service /etc/systemd/system/catalogue.service &>>$LOG_FILE
 VALIDATE $? "Copying Catalogue Service File"
 
 
@@ -89,7 +90,7 @@ VALIDATE $? "Enabling Catalogue Service"
 systemctl start catalogue &>>$LOG_FILE
 VALIDATE $? "Starting Catalogue Service"
 
-cp mongo.repo  /etc/yum.repos.d/mongo.repo &>>$LOG_FILE
+cp $SCRIPT_DIR/mongo.repo  /etc/yum.repos.d/mongo.repo &>>$LOG_FILE
 VALIDATE $? "Copying MongoDB Repo File"
 
 
