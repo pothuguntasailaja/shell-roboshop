@@ -51,17 +51,17 @@ else
 fi
 
 
-mkdir -p /app
+mkdir -p /app &>$LOG_FILE
 VALIDATE $? "Creating Application Directory"
 
 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip  &>$LOG_FILE
 VALIDATE $? "Downloading Catalogue Artifact"
 
 cd /app 
 VALIDATE $? "Changing Directory to /app"
 
-unzip /tmp/catalogue.zip
+unzip /tmp/catalogue.zip &>$LOG_FILE
 VALIDATE $? "Extracting Catalogue Artifact"
 
 
