@@ -61,6 +61,9 @@ VALIDATE $? "Downloading Catalogue Artifact"
 cd /app 
 VALIDATE $? "Changing Directory to /app"
 
+rm -rf /app/*
+VALIDATE $? "Removing Old Application Content"
+
 unzip /tmp/catalogue.zip &>$LOG_FILE
 VALIDATE $? "Extracting Catalogue Artifact"
 
