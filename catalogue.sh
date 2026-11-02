@@ -32,14 +32,15 @@ VALIDATE(){
 }
 
 
-dnf module disable nodejs -y
-VALIDARE $? "Disable nodejs"
+dnf module disable nodejs -y &>>$LOG_FILE
+VALIDATE $? "Disable nodejs"
 
-dnf module enable nodejs:20 -y
+dnf module enable nodejs:20 -y &>>$LOG_FILE
 VALIDATE $? "Enable nodejs"
 
-dnf install nodejs -y
+dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing Nodejs"
+
 
 id roboshop
 if [ $? -ne 0 ]; then
@@ -50,7 +51,7 @@ else
 fi
 
 
-mkdir /app
+mkdir -p /app
 VALIDATE $? "Creating Application Directory"
 
 
