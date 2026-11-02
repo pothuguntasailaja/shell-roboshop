@@ -103,7 +103,7 @@ VALIDATE $? "Installing MongoDB Shell"
 # We use mongosh to execute the master-data.js file and load product data into MongoDB."
 
 INDEX=$(mongosh mongodb.daws86s.de --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
-if [ $INDEX -le 0 ]; then
+if [ $INDEX -lt 0 ]; then
      mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
      VALIDATE $? "Loading Catalogue Products"
 else
