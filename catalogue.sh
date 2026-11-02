@@ -97,12 +97,18 @@ VALIDATE $? "Copying MongoDB Repo File"
 dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Installing MongoDB Shell"
 
+
+# "MongoDB Server and MongoDB Shell are different. MongoDB Server stores all the catalogue product information.
+# MongoDB Shell is a command-line tool used to connect to the MongoDB Server and execute commands.
+# We use mongosh to execute the master-data.js file and load product data into MongoDB."
+
 INDEX=$(mongosh mongodb.daws86s.de --quiet --eval "db.getMongo().getDBNames().indexOf('catalogue')")
-if [ $INDEX -le 0 ]; then
+if [ $INDEX -lt 0 ]; then
      mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
      VALIDATE $? "Loading Catalogue Products"
 else
     echo -e "Catalogue Products already Loaded.... $Y SKIPPING $N"
 fi
+
 systemctl restart catalogue &>>$LOG_FILE
 VALIDATE $? "Restarting Catalogue Service"
