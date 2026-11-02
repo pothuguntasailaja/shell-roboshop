@@ -1,0 +1,99 @@
+#!/bin/bash
+
+USER_ID=$(id -u) # get the user id of the current user
+R="\e[31m"
+G="\e[32m"
+Y="\e[33m"
+N="\e[0m"
+
+LOGS_FOLDER="/var/log/shell-roboshop"
+SCRIPT_NAME=$(echo $0 | cut -d "." -f1)
+LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
+MONGODB_HOST=mongodb.daws86s.de
+
+
+mkdir -p $LOGS_FOLDER
+echo "Logs will be stored in $LOG_FILE" | tee -a $LOG_FILE
+echo "Script started execution at $(date)" | tee -a $LOG_FILE
+
+if [ $USER_ID -ne 0 ]; then 
+    echo "please run this script as root privilege"
+    exit 1 # failure exit status
+fi
+
+
+VALIDATE(){
+    if [ $1 -ne 0 ]; then  # check the exit status of the last command
+        echo -e "$2 installation is $R FAILURE.... $N" | tee -a $LOG_FILE
+        exit 1
+    else
+        echo -e "$2 installation is $G SUCCESS.... $N" | tee -a $LOG_FILE
+    fi
+}
+
+
+dnf module disable nodejs -y
+VALIDARE $? "Disable nodejs"
+
+dnf module enable nodejs:20 -y
+VALIDATE $? "Enable nodejs"
+
+dnf install nodejs -y
+VALIDATE $? "Installing Nodejs"
+
+id roboshop
+if [ $? -ne 0 ]; then
+useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+VALIDATE $? "Creating System User"
+else
+    echo "roboshop user already exists"
+fi
+
+
+mkdir /app
+VALIDATE $? "Creating Application Directory"
+
+
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+VALIDATE $? "Downloading Catalogue Artifact"
+
+cd /app 
+VALIDATE $? "Changing Directory to /app"
+
+unzip /tmp/catalogue.zip
+VALIDATE $? "Extracting Catalogue Artifact"
+
+
+cd /app 
+VALIDATE $? "Changing Directory to /app"
+
+npm install 
+VALIDATE $? "Installing Nodejs Dependencies"
+
+
+cp catalogue.service /etc/systemd/system/catalogue.service
+VALIDATE $? "Copying Catalogue Service File"
+
+
+systemctl daemon-reload
+VALIDATE $? "Reloading Systemd Daemon"
+
+
+systemctl enable catalogue 
+VALIDATE $? "Enabling Catalogue Service"
+
+systemctl start catalogue
+VALIDATE $? "Starting Catalogue Service"
+
+cp mongo.repo  /etc/yum.repos.d/mongo.repo
+VALIDATE $? "Copying MongoDB Repo File"
+
+
+dnf install mongodb-mongosh -y
+VALIDATE $? "Installing MongoDB Shell"
+
+mongosh --host $MONGODB_HOST </app/db/master-data.js
+VALIDATE $? "Loading Catalogue Data"
+
+mongosh --host $MONGODB_HOST
+VALIDATE $? "Testing MongoDB Connection"
