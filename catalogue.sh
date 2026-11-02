@@ -51,53 +51,53 @@ else
 fi
 
 
-mkdir -p /app &>$LOG_FILE
+mkdir -p /app &>>$LOG_FILE
 VALIDATE $? "Creating Application Directory"
 
 
 curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip  &>$LOG_FILE
 VALIDATE $? "Downloading Catalogue Artifact"
 
-cd /app 
+cd /app  &>>$LOG_FILE
 VALIDATE $? "Changing Directory to /app"
 
-rm -rf /app/*
+rm -rf /app/* &>>$LOG_FILE
 VALIDATE $? "Removing Old Application Content"
 
-unzip /tmp/catalogue.zip &>$LOG_FILE
+unzip /tmp/catalogue.zip &>>$LOG_FILE 
 VALIDATE $? "Extracting Catalogue Artifact"
 
 
-cd /app 
+cd /app  &>$LOG_FILE
 VALIDATE $? "Changing Directory to /app"
 
-npm install 
+npm install &>>$LOG_FILE
 VALIDATE $? "Installing Nodejs Dependencies"
 
 
-cp catalogue.service /etc/systemd/system/catalogue.service
+cp catalogue.service /etc/systemd/system/catalogue.service &>>$LOG_FILE
 VALIDATE $? "Copying Catalogue Service File"
 
 
-systemctl daemon-reload
+systemctl daemon-reload &>>$LOG_FILE
 VALIDATE $? "Reloading Systemd Daemon"
 
 
-systemctl enable catalogue 
+systemctl enable catalogue &>>$LOG_FILE
 VALIDATE $? "Enabling Catalogue Service"
 
-systemctl start catalogue
+systemctl start catalogue &>>$LOG_FILE
 VALIDATE $? "Starting Catalogue Service"
 
-cp mongo.repo  /etc/yum.repos.d/mongo.repo
+cp mongo.repo  /etc/yum.repos.d/mongo.repo &>>$LOG_FILE
 VALIDATE $? "Copying MongoDB Repo File"
 
 
-dnf install mongodb-mongosh -y
+dnf install mongodb-mongosh -y &>>$LOG_FILE
 VALIDATE $? "Installing MongoDB Shell"
 
-mongosh --host $MONGODB_HOST </app/db/master-data.js
+mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Loading Catalogue Data"
 
-mongosh --host $MONGODB_HOST
+mongosh --host $MONGODB_HOST &>>$LOG_FILE 
 VALIDATE $? "Testing MongoDB Connection"
