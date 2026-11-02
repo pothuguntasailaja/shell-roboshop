@@ -100,5 +100,5 @@ VALIDATE $? "Installing MongoDB Shell"
 mongosh --host $MONGODB_HOST </app/db/master-data.js &>>$LOG_FILE
 VALIDATE $? "Loading Catalogue Data"
 
-mongosh --host $MONGODB_HOST &>>$LOG_FILE 
-VALIDATE $? "Testing MongoDB Connection"
+systenctl restart catalogue &>>$LOG_FILE
+VALIDATE $? "Restarting Catalogue Service"
