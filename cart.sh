@@ -58,7 +58,7 @@ mkdir -p /app &>>$LOG_FILE
 VALIDATE $? "Creating Application Directory"
 
 
-curl -o /tmp/$NAME.zip https://roboshop-artifacts.s3.amazonaws.com/$NAME-v3.zip  &>$LOG_FILE
+curl -L -o /tmp/$NAME.zip https://roboshop-artifacts.s3.amazonaws.com/$NAME-v3.zip  &>$LOG_FILE
 VALIDATE $? "Downloading $NAME Artifact"
 
 cd /app  &>>$LOG_FILE
