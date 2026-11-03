@@ -34,40 +34,39 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nginx -y &>>$LOG_FILE
+dnf module disable nginx -y
 VALIDATE $? "Disable nginx"
 
-dnf module enable nginx:1.24 -y &>>$LOG_FILE
+dnf module enable nginx:1.24 -y
 VALIDATE $? "Enable nginx"
 
-dnf install nginx -y &>>$LOG_FILE
-VALIDATE $? "Install nginx"
+dnf install nginx -y
+VALIDATE $? "Installing nginx"
 
-dnf module enable nginx:1.24 -y &>>$LOG_FILE
-VALIDATE $? "Enable nginx"
-
-dnf install nginx -y &>>$LOG_FILE
-VALIDATE $? "Install nginx"
-
-systemctl enable nginx
+systemctl enable nginx 
 VALIDATE $? "Enable nginx Service"
 
 systemctl start nginx 
 VALIDATE $? "Start nginx Service"
 
-rm -rf /usr/share/nginx/html/* &>>$LOG_FILE
-VALIDATE $? "Removing Default Nginx Content"
+rm -rf /usr/share/nginx/html/* 
+VALIDATE $? "Removing Old Content"
 
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip  &>>$LOG_FILE
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
 VALIDATE $? "Downloading Frontend Artifact"
 
-cd /usr/share/nginx/html &>>$LOG_FILE
+
+cd /usr/share/nginx/html
 VALIDATE $? "Changing Directory to /usr/share/nginx/html"
 
-unzip /tmp/frontend.zip &>>$LOG_FILE
+
+unzip /tmp/frontend.zip
 VALIDATE $? "Extracting Frontend Artifact"
 
-cp $SCRIPT_DIR/localhost.conf /etc/nginx/nginx.conf &>>$LOG_FILE
+rm -rf /etc/nginx/nginx.conf
+VALIDATE $? "Removing Old Nginx Configuration File"
+
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
 VALIDATE $? "Copying Nginx Configuration File"
 
 systemctl restart nginx
