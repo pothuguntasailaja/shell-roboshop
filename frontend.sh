@@ -34,13 +34,13 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nginx -y
+dnf module disable nginx -y &>>$LOG_FILE
 VALIDATE $? "Disable nginx"
 
-dnf module enable nginx:1.24 -y
+dnf module enable nginx:1.24 -y &>>$LOG_FILE
 VALIDATE $? "Enable nginx"
 
-dnf install nginx -y
+dnf install nginx -y &>>$LOG_FILE
 VALIDATE $? "Installing nginx"
 
 systemctl enable nginx 
@@ -49,24 +49,24 @@ VALIDATE $? "Enable nginx Service"
 systemctl start nginx 
 VALIDATE $? "Start nginx Service"
 
-rm -rf /usr/share/nginx/html/* 
+rm -rf /usr/share/nginx/html/*  &>>$LOG_FILE
 VALIDATE $? "Removing Old Content"
 
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
 VALIDATE $? "Downloading Frontend Artifact"
 
 
-cd /usr/share/nginx/html
+cd /usr/share/nginx/html &>>$LOG_FILE
 VALIDATE $? "Changing Directory to /usr/share/nginx/html"
 
 
-unzip /tmp/frontend.zip
+unzip /tmp/frontend.zip &>>$LOG_FILE
 VALIDATE $? "Extracting Frontend Artifact"
 
-rm -rf /etc/nginx/nginx.conf
+rm -rf /etc/nginx/nginx.conf &>>$LOG_FILE
 VALIDATE $? "Removing Old Nginx Configuration File"
 
-cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
+cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf &>>$LOG_FILE
 VALIDATE $? "Copying Nginx Configuration File"
 
 systemctl restart nginx
