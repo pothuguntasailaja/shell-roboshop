@@ -46,6 +46,7 @@ VALIDATE $? "Start MySQL Service"
 mysql_secure_installation --set-root-pass RoboShop@1 &>>$LOG_FILE
 VALIDATE $? "Setting MySQL Root Password"
 
+START_TIME=$(date +%s)
 END_TIME=$(date +%s)
 TOTAL_TIME=$(($END_TIME - $START_TIME))
 echo "Total execution time: $TOTAL_TIME seconds" 
