@@ -56,17 +56,17 @@ VALIDATE $? "Downloading Payment Artifact"
 cd /app 
 VALIDATE $? "Changing Directory to /app"
 
-unzip /tmp/payment.zip
+unzip /tmp/payment.zip  &>>$LOG_FILE
 VALIDATE $? "Extracting Payment Artifact"
 
 cd /app 
 VALIDATE $? "Changing Directory to /app"
 
-pip3 install -r requirements.txt
+pip3 install -r requirements.txt  &>>$LOG_FILE
 VALIDATE $? "Installing Python3 Dependencies"
 
 
-cp $SCRIPT_DIR/payment.service /etc/systemd/system/payment.service
+cp $SCRIPT_DIR/payment.service /etc/systemd/system/payment.service &>>$LOG_FILE
 VALIDATE $? "Copying Payment Service File"
 
 systemctl daemon-reload
