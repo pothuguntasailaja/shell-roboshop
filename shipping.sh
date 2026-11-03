@@ -59,7 +59,7 @@ fi
 mkdir -p /app 
 VALIDATE $? "Creating Application Directory"
 
-curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip  &>>$LOG_FILE
 VALIDATE $? "Downloading Shipping Artifact"
 
 cd /app 
@@ -68,19 +68,19 @@ VALIDATE $? "Changing Directory to /app"
 rm -rf /app/* &>>$LOG_FILE
 VALIDATE $? "Removing Old Application Content"
 
-unzip /tmp/shipping.zip
+unzip /tmp/shipping.zip &>>$LOG_FILE
 VALIDATE $? "Extracting Shipping Artifact"
 
 cd /app 
 VALIDATE $? "Changing Directory to /app"
 
-mvn clean package 
+mvn clean package  &>>$LOG_FILE
 VALIDATE $? "Building Shipping Application"
 
-mv target/shipping-1.0.jar shipping.jar 
+mv target/shipping-1.0.jar shipping.jar  &>>$LOG_FILE
 VALIDATE $? "Renaming Shipping Jar File"
 
-cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service
+cp $SCRIPT_DIR/shipping.service /etc/systemd/system/shipping.service &>>$LOG_FILE
 VALIDATE $? "Copying Shipping Service File"
 
 systemctl daemon-reload
@@ -92,18 +92,18 @@ VALIDATE $? "Enabling Shipping Service"
 systemctl start shipping
 VALIDATE $? "Starting Shipping Service"
 
-dnf install mysql -y 
+dnf install mysql -y  &>>$LOG_FILE
 VALIDATE $? "Installing Mysql Client"
 
 # This command connects to the MySQL server and executes a SQL command.
-mysql -h mysql.daws86s.de -uroot -pRoboshop@! -e  'use mysql'
+mysql -h mysql.daws86s.de -uroot -pRoboshop@! -e  'use mysql' &>>$LOG_FILE
 if [ $? -ne 0 ]; then
-    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/schema.sql
-    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/app-user.sql 
-    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/master-data.sql
+    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/schema.sql &>>$LOG_FILE
+    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/app-user.sql  &>>$LOG_FILE
+    mysql -h mysql.daws86s.de -uroot -pRoboshop@! < /app/db/master-data.sql &>>$LOG_FILE
 else
     echo -e "Shipping DB already exists.... $Y SKIPPING $N"
 fi
 
-systemctl restart shipping
+systemctl restart shipping  &>>$LOG_FILE
 VALIDATE $? "Restarting Shipping Service"
